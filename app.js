@@ -354,6 +354,74 @@
   }
 
   // Input
+  // ===== Touch controls =====
+  // Press-and-hold repeat for on-screen buttons
+  const startRepeater = (fn) => {
+    fn();
+    let t = setInterval(fn, 110);
+    return () => clearInterval(t);
+  };
+  document.querySelectorAll('.btn').forEach(b => {
+    let stop = null;
+    const act = b.dataset.act;
+    const run = () => {
+      if (act === 'left') playerMove(-1);
+      else if (act === 'right') playerMove(1);
+      else if (act === 'down') softDrop();
+      else if (act === 'rotate') playerRotate();
+      else if (act === 'drop') hardDrop();
+      else if (act === 'pause') paused = !paused;
+      else if (act === 'reset') initGame(true);
+    };
+    b.addEventListener('touchstart', (e) => { e.preventDefault(); stop = startRepeater(run); }, {passive:false});
+    b.addEventListener('touchend', () => { if (stop) stop(); stop=null; }, {passive:true});
+  });
+
+  // Swipe/drag gestures on the board
+  let touchStart = null;
+  const minSwipe = 18; // px threshold
+  canvas.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 1) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    touchStart = { x: t.clientX, y: t.clientY, moved:false, lastX:t.clientX, lastY:t.clientY };
+  }, {passive:false});
+
+  canvas.addEventListener('touchmove', (e) => {
+    if (!touchStart || e.touches.length > 1) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    const dx = t.clientX - touchStart.lastX;
+    const dy = t.clientY - touchStart.lastY;
+    // Horizontal step movement in grid-like increments
+    if (Math.abs(dx) >= minSwipe) {
+      playerMove(dx > 0 ? 1 : -1);
+      touchStart.lastX = t.clientX;
+      touchStart.moved = true;
+    }
+    // Soft drop when dragging down
+    if (dy >= minSwipe) {
+      softDrop();
+      touchStart.lastY = t.clientY;
+      touchStart.moved = true;
+    }
+  }, {passive:false});
+
+  canvas.addEventListener('touchend', (e) => {
+    if (!touchStart) return;
+    // Tap (no swipe): rotate
+    if (!touchStart.moved) {
+      playerRotate();
+    } else {
+      // Quick upward swipe => hard drop
+      const totalDy = (touchStart.lastY - touchStart.y);
+      if (totalDy <= -40) {
+        hardDrop();
+      }
+    }
+    touchStart = null;
+  }, {passive:true});
+
   let paused = false;
   document.addEventListener('keydown', (e) => {
     switch(e.code){
@@ -383,6 +451,28 @@
     });
   });
 
+  
+  // ===== Tutorial overlay (first run on mobile) =====
+  const isMobile = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+  const tutorialSeenKey = 'tetrixapp_tutorial_seen';
+  const tutorialEl = document.getElementById('tutorial');
+  const tutorialOk = document.getElementById('tutorialOk');
+
+  function showTutorialOnce(){
+    if (isMobile && !localStorage.getItem(tutorialSeenKey)){
+      tutorialEl.hidden = false;
+    }
+  }
+  function hideTutorial(){
+    tutorialEl.hidden = true;
+    localStorage.setItem(tutorialSeenKey, '1');
+  }
+  if (tutorialOk) tutorialOk.addEventListener('click', hideTutorial);
+  // Tap outside card also closes
+  if (tutorialEl) tutorialEl.addEventListener('click', (e) => {
+    if (e.target === tutorialEl) hideTutorial();
+  });
+
   // Install prompt
   let deferredPrompt = null;
   const installBtn = document.getElementById('installBtn');
@@ -408,6 +498,22 @@
     draw();
   }
 
+  
+  // ===== Tutorial Overlay =====
+  const overlay = document.getElementById('tutorialOverlay');
+  const closeBtn = document.getElementById('closeTutorial');
+  if (overlay && closeBtn && /Mobi|Android/i.test(navigator.userAgent)) {
+    const seen = localStorage.getItem('tetrixapp_tutorial_seen');
+    if (!seen) {
+      overlay.hidden = false;
+      closeBtn.addEventListener('click', () => {
+        overlay.hidden = true;
+        localStorage.setItem('tetrixapp_tutorial_seen','1');
+      });
+    }
+  }
+
+
   // SW registration
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -415,6 +521,7 @@
     });
   }
 
+  showTutorialOnce();
   initGame();
   update();
 })();

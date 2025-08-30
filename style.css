@@ -35,3 +35,47 @@ kbd{background:#111827;border:1px solid #374151;border-radius:4px;padding:2px 6p
   .layout{grid-template-columns:1fr}
   .side{order:-1}
 }
+
+
+/* --- Mobile UX improvements --- */
+@media (max-width: 900px){
+  .controls .row { gap: 12px; }
+  .btn{ padding:16px 18px; font-size:18px; border-radius:14px }
+  .btn.wide{ padding:16px }
+  #game{ touch-action: none; } /* disable browser gestures on the canvas */
+  .panel{ padding:14px }
+}
+
+/* Larger tap targets for iOS Safari */
+@supports (-webkit-touch-callout: none) {
+  .btn{ min-width:56px; min-height:56px }
+}
+
+
+/* --- Tutorial Overlay --- */
+.overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.8);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;color:#fff;
+}
+.overlay-content{
+  background:#111827;padding:20px;border-radius:16px;max-width:320px;text-align:left;
+}
+.overlay-content h2{margin-top:0;font-size:20px}
+.overlay-content ul{padding-left:20px;font-size:15px}
+.overlay-content li{margin:6px 0}
+.overlay-content .btn{margin-top:12px;width:100%}
+
+
+/* --- Tutorial overlay --- */
+.tutorial-overlay{position:fixed;inset:0;background:rgba(3,6,12,0.7);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:50}
+.tutorial-card{background:#0b1220;border:1px solid var(--line);border-radius:16px;padding:16px;max-width:520px;margin:16px}
+.tutorial-card h3{margin:0 0 8px}
+.tutorial-card ul{margin:0 0 12px 0;padding-left:0;list-style:none;display:grid;gap:6px}
+.tutorial-card li{display:flex;align-items:center;gap:10px;color:var(--ink)}
+.tutorial-card .ico{width:28px;display:inline-block;text-align:center;opacity:.9}
+.btn.primary{background:var(--accent);border-color:transparent;color:#052e16}
+@media (max-width:900px){
+  .tutorial-card{padding:18px}
+}

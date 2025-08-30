@@ -25,6 +25,19 @@
   </header>
 
   <main class="layout">
+  <div id="tutorial" class="tutorial-overlay" hidden>
+    <div class="tutorial-card">
+      <h3>Come si gioca su mobile</h3>
+      <ul>
+        <li><span class="ico">👆</span><strong>Tap</strong> sul campo: <em>ruota</em></li>
+        <li><span class="ico">⬅️➡️</span><strong>Swipe</strong> orizzontale: <em>muovi</em></li>
+        <li><span class="ico">⬇️</span><strong>Drag giù</strong>: <em>soft drop</em></li>
+        <li><span class="ico">⬆️⚡</span><strong>Swipe su veloce</strong>: <em>HARD DROP</em></li>
+        <li><span class="ico">⏺️</span>Pulsanti: <em>press & hold</em> per movimento continuo</li>
+      </ul>
+      <button id="tutorialOk" class="btn primary">Capito</button>
+    </div>
+  </div>
     <section class="board">
       <canvas id="game" width="300" height="600" aria-label="Tetris board" role="img"></canvas>
       <div class="hud">
@@ -78,5 +91,21 @@
   </footer>
 
   <script src="app.js"></script>
+
+  <!-- Tutorial Overlay -->
+  <div id="tutorialOverlay" class="overlay" hidden>
+    <div class="overlay-content">
+      <h2>Come giocare su mobile 📱</h2>
+      <ul>
+        <li><strong>Tap</strong> → Ruota</li>
+        <li><strong>Swipe sinistra/destra</strong> → Muovi</li>
+        <li><strong>Drag giù</strong> → Soft drop</li>
+        <li><strong>Swipe su veloce</strong> → Hard drop</li>
+        <li><strong>Pulsanti</strong> → Muovi, Pausa, Nuova</li>
+      </ul>
+      <button id="closeTutorial" class="btn wide">OK, ho capito</button>
+    </div>
+  </div>
+
 </body>
 </html>
