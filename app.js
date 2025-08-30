@@ -452,54 +452,6 @@
   });
 
   
-  // ===== Tutorial overlay (first run on mobile) =====
-  const isMobile = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
-  const tutorialSeenKey = 'tetrixapp_tutorial_seen';
-  const tutorialEl = document.getElementById('tutorial');
-  const tutorialOk = document.getElementById('tutorialOk');
-
-  function showTutorialOnce(){
-    if (isMobile && !localStorage.getItem(tutorialSeenKey)){
-      tutorialEl.hidden = false;
-    }
-  }
-  function hideTutorial(){
-    tutorialEl.hidden = true;
-    localStorage.setItem(tutorialSeenKey, '1');
-  }
-  if (tutorialOk) tutorialOk.addEventListener('click', hideTutorial);
-  // Tap outside card also closes
-  if (tutorialEl) tutorialEl.addEventListener('click', (e) => {
-    if (e.target === tutorialEl) hideTutorial();
-  });
-
-  // ===== Tutorial overlay (first run on mobile) =====
-  const isMobile = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
-  const tutorialSeenKey = 'tetrixapp_tutorial_seen';
-  const tutorialEl = document.getElementById('tutorial');
-  const tutorialOk = document.getElementById('tutorialOk');
-  const tutorialClose = document.getElementById('tutorialClose');
-
-  function showTutorialOnce(){
-    if (isMobile && !localStorage.getItem(tutorialSeenKey) && tutorialEl){
-      // delay a tick so layout is ready
-      setTimeout(() => { tutorialEl.hidden = false; }, 200);
-      // auto-dismiss after 12s in caso di problemi col click
-      setTimeout(() => {
-        if (!localStorage.getItem(tutorialSeenKey) && !tutorialEl.hidden) hideTutorial();
-      }, 12000);
-    }
-  }
-  function hideTutorial(){
-    if (!tutorialEl) return;
-    tutorialEl.hidden = true;
-    try { localStorage.setItem(tutorialSeenKey, '1'); } catch {}
-  }
-  if (tutorialOk) tutorialOk.addEventListener('click', (e) => { e.preventDefault(); hideTutorial(); });
-  if (tutorialClose) tutorialClose.addEventListener('click', (e) => { e.preventDefault(); hideTutorial(); });
-  if (tutorialEl) tutorialEl.addEventListener('click', (e) => {
-    if (e.target === tutorialEl) hideTutorial();
-  });
   // Install prompt
   let deferredPrompt = null;
   const installBtn = document.getElementById('installBtn');
@@ -548,7 +500,6 @@
     });
   }
 
-  showTutorialOnce();
   initGame();
   update();
 })();

@@ -1,11 +1,12 @@
 // sw.js — TetriXapp offline cache
-const CACHE = 'tetrixapp-v2';
+const CACHE = 'tetrixapp-v3';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './app.js',
   './manifest.json',
+  './tutorial.html',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/favicon.ico',
