@@ -1,4 +1,4 @@
-# TetrisXapp
+# TetriXapp
 
 Una Tetris PWA **in un'unica cartella**: leggera, offline, open‑source.  
 Perfetta da pubblicare su GitHub Pages con un *fork* e due click.
@@ -15,12 +15,12 @@ Perfetta da pubblicare su GitHub Pages con un *fork* e due click.
 Basta servire la cartella con un server statico (necessario per i Service Worker):
 ```bash
 # con Python
-python3 -m http.server -d TetrisXapp 8080
+python3 -m http.server -d TetriXapp 8080
 # poi apri http://localhost:8080
 ```
 
 ## 🚀 Pubblicazione su GitHub Pages
-1. Crea il repo **TetrisXapp** e carica i file di questa cartella nella root.
+1. Crea il repo **TetriXapp** e carica i file di questa cartella nella root.
 2. Vai su **Settings → Pages** e scegli **Deploy from a branch** (branch `main`, folder `/`).
 3. Attendi il deploy, poi apri l’URL che GitHub ti fornisce.  
    Il browser proporrà l’**Install** (PWA) e l’app funzionerà **offline**.
@@ -35,7 +35,7 @@ python3 -m http.server -d TetrisXapp 8080
 
 ## 🧱 Struttura
 ```
-TetrisXapp/
+TetriXapp/
 ├─ index.html
 ├─ style.css
 ├─ app.js
@@ -55,6 +55,6 @@ TetrisXapp/
 
 ## 👐 Licenza
 MIT — fai un *fork*, cambia i colori, aggiungi suoni, firma la tua versione.  
-Se vuoi, cita: **PezzaliAPP / TetrisXapp**.
+Se vuoi, cita: **PezzaliAPP / TetriXapp**.
 
 > “Ogni strumento è un gesto di fiducia.” — PezzaliAPP

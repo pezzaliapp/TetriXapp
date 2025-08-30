@@ -1,4 +1,4 @@
-// sw.js — TetrisXapp offline cache
+// sw.js — TetriXapp offline cache
 const CACHE = 'tetrisxapp-v1';
 const ASSETS = [
   './',

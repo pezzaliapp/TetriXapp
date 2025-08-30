@@ -1,4 +1,4 @@
-// TetrisXapp — Vanilla JS PWA
+// TetriXapp — Vanilla JS PWA (hotfix)
 // © 2025 PezzaliAPP — MIT License
 
 (() => {
@@ -26,16 +26,16 @@
 
   // Colors per tetromino
   const COLORS = {
-    I: '#60a5fa', // Sky
+    I: '#60a5fa',
     J: '#93c5fd',
-    L: '#f59e0b', // Amber
+    L: '#f59e0b',
     O: '#fbbf24',
-    S: '#22c55e', // Green
-    T: '#a78bfa', // Violet
-    Z: '#ef4444'  // Red
+    S: '#22c55e',
+    T: '#a78bfa',
+    Z: '#ef4444'
   };
 
-  // Shapes (4x4 matrices)
+  // Shapes
   const SHAPES = {
     I: [
       [0,0,0,0],
@@ -80,7 +80,6 @@
     next(){
       if (this.bag.length === 0) {
         this.bag = Object.keys(SHAPES);
-        // shuffle
         for (let i = this.bag.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [this.bag[i], this.bag[j]] = [this.bag[j], this.bag[i]];
@@ -89,32 +88,40 @@
       return this.bag.pop();
     }
   }
-
   const bag = new Bag();
 
   // Arena (board)
+  function createMatrix(w, h){
+    return Array.from({length:h}, () => Array(w).fill(0));
+  }
   const arena = createMatrix(COLS, ROWS);
 
-  function createMatrix(w, h){
-    const m = [];
-    for (let y=0;y<h;y++){
-      m.push(new Array(w).fill(0));
-    }
-    return m;
-  }
-
+  // Safer rotate that also works for rectangular matrices
   function rotate(matrix){
-    const m = matrix.map((row, y) => row.map((_, x) => matrix[matrix.length-1-x][y]));
-    return m;
+    const h = matrix.length;
+    const w = matrix[0].length;
+    const res = Array.from({length:w}, () => Array(h).fill(0));
+    for (let y=0;y<h;y++){
+      for (let x=0;x<w;x++){
+        res[x][h-1-y] = matrix[y][x];
+      }
+    }
+    return res;
   }
 
+  // Explicit collision with bounds + existing cells
   function collide(arena, piece){
-    const [m, o] = [piece.matrix, piece.pos];
-    for (let y=0;y<m.length;y++){
-      for (let x=0;x<m[y].length;x++){
-        if (m[y][x] && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0){
-          return true;
-        }
+    const m = piece.matrix;
+    const o = piece.pos;
+    for (let y=0; y<m.length; y++){
+      for (let x=0; x<m[y].length; x++){
+        if (!m[y][x]) continue;
+        const ax = o.x + x;
+        const ay = o.y + y;
+        // bounds: left/right/bottom block movement
+        if (ax < 0 || ax >= COLS || ay >= ROWS) return true;
+        // top outside is allowed while spawning (ay < 0)
+        if (ay >= 0 && arena[ay][ax]) return true;
       }
     }
     return false;
@@ -123,8 +130,8 @@
   function merge(arena, piece){
     piece.matrix.forEach((row, y) => {
       row.forEach((val, x) => {
-        if (val){
-          arena[y + piece.pos.y][x + piece.pos.x] = piece.color;
+        if (val && piece.pos.y + y >= 0){
+          arena[piece.pos.y + y][piece.pos.x + x] = piece.color;
         }
       });
     });
@@ -134,9 +141,7 @@
     let rowCount = 0;
     outer: for (let y = arena.length - 1; y >= 0; y--){
       for (let x = 0; x < arena[y].length; x++){
-        if (arena[y][x] === 0) {
-          continue outer;
-        }
+        if (arena[y][x] === 0) continue outer;
       }
       const row = arena.splice(y, 1)[0].fill(0);
       arena.unshift(row);
@@ -156,10 +161,10 @@
   }
 
   let dropCounter = 0;
-  let dropInterval = 1000; // ms, will speed up
+  let dropInterval = 1000;
   let lastTime = 0;
 
-  let score = 0, lines = 0, level = 1, best = +localStorage.getItem('tetrisxapp_best') || 0;
+  let score = 0, lines = 0, level = 1, best = +localStorage.getItem('tetrixapp_best') || 0;
 
   const player = {
     pos: {x: 0, y: 0},
@@ -176,14 +181,11 @@
     player.color = COLORS[t];
     player.pos.y = 0;
     player.pos.x = ((COLS / 2) | 0) - ((player.matrix[0].length/2) | 0);
-    // Check game over
     if (collide(arena, player)) {
-      // reset arena
       for (let y=0;y<arena.length;y++) arena[y].fill(0);
       score = 0; lines = 0; level = 1; dropInterval = 1000;
       updateHUD();
     }
-    // Prepare next
     player.next = createPiece(bag.next());
     drawNext();
   }
@@ -192,17 +194,15 @@
     const s = SIZE;
     ctx.fillStyle = color;
     ctx.fillRect(x*s, y*s, s, s);
-    // grid/gloss
     ctx.fillStyle = 'rgba(255,255,255,0.06)';
     ctx.fillRect(x*s+2, y*s+2, s-4, s-4);
   }
 
   function draw(){
-    // background
     ctx.fillStyle = '#0a0f1a';
     ctx.fillRect(0, 0, COLS*SIZE, ROWS*SIZE);
 
-    // draw arena
+    // arena
     for (let y=0;y<arena.length;y++){
       for (let x=0;x<arena[y].length;x++){
         const v = arena[y][x];
@@ -210,11 +210,11 @@
       }
     }
 
-    // draw ghost
-    const ghostY = ghostDropY();
-    drawPiece(player, ghostY, true);
+    // ghost
+    const gy = ghostDropY();
+    drawPiece(player, gy, true);
 
-    // draw current
+    // current
     drawPiece(player, player.pos.y, false);
   }
 
@@ -240,7 +240,6 @@
     nctx.clearRect(0,0,NEXT_SIZE,NEXT_SIZE);
     const m = player.next.matrix;
     const c = player.next.color;
-    // center in 4x4 box
     const offsetX = Math.floor((4 - m[0].length)/2);
     const offsetY = Math.floor((4 - m.length)/2);
     for (let y=0;y<m.length;y++){
@@ -279,14 +278,13 @@
       const cleared = clearLines();
       if (cleared > 0){
         lines += cleared;
-        // basic scoring
         const base = [0, 100, 300, 500, 800][cleared];
         score += (base * level);
         if (lines >= level * 10){
           level++;
           dropInterval = Math.max(100, 1000 - (level-1)*75);
         }
-        if (score > best){ best = score; localStorage.setItem('tetrisxapp_best', best); }
+        if (score > best){ best = score; localStorage.setItem('tetrixapp_best', best); }
         updateHUD();
       }
       // spawn next
@@ -298,7 +296,6 @@
       player.pos.x = ((COLS / 2) | 0) - ((player.matrix[0].length/2) | 0);
       player.next = createPiece(bag.next());
       drawNext();
-      // if immediate collision -> game over handled in playerReset on next frame
       if (collide(arena, player)){
         playerReset();
       }
@@ -307,14 +304,15 @@
   }
 
   function ghostDropY(){
-    let y = player.pos.y;
-    while (true){
-      y++;
-      const test = { ...player, pos: { x: player.pos.x, y }};
-      if (collide(arena, test)) {
-        return y - 1;
-      }
+    const g = {
+      matrix: player.matrix,
+      pos: { x: player.pos.x, y: player.pos.y },
+      color: player.color
+    };
+    while (!collide(arena, g)) {
+      g.pos.y++;
     }
+    return g.pos.y - 1;
   }
 
   function playerMove(dir){
@@ -326,30 +324,21 @@
 
   function playerRotate(){
     const prev = player.matrix;
-    let m = rotate(prev);
+    const rotated = rotate(prev);
     const oldX = player.pos.x;
-    let offset = 1;
-    player.matrix = m;
-    // basic wall kick
-    while (collide(arena, player)){
-      player.pos.x += offset;
-      offset = -(offset + (offset > 0 ? 1 : -1));
-      if (Math.abs(offset) > 3){
-        player.matrix = prev;
-        player.pos.x = oldX;
-        return;
-      }
+    player.matrix = rotated;
+    // basic SRS-like kicks
+    const kicks = [0, -1, 1, -2, 2];
+    for (const k of kicks){
+      player.pos.x = oldX + k;
+      if (!collide(arena, player)) return;
     }
+    // no fit, revert
+    player.matrix = prev;
+    player.pos.x = oldX;
   }
 
-  function hardDrop(){
-    while (!collide(arena, player)) {
-      player.pos.y++;
-    }
-    player.pos.y--;
-    playerDrop();
-  }
-
+  function hardDrop(){ while (!collide(arena, player)) player.pos.y++; player.pos.y--; playerDrop(); }
   function softDrop(){
     player.pos.y++;
     if (collide(arena, player)){
@@ -368,12 +357,12 @@
   let paused = false;
   document.addEventListener('keydown', (e) => {
     switch(e.code){
-      case 'ArrowLeft': playerMove(-1); break;
-      case 'ArrowRight': playerMove(1); break;
-      case 'ArrowDown': softDrop(); break;
+      case 'ArrowLeft': e.preventDefault(); playerMove(-1); break;
+      case 'ArrowRight': e.preventDefault(); playerMove(1); break;
+      case 'ArrowDown': e.preventDefault(); softDrop(); break;
       case 'ArrowUp':
       case 'KeyW':
-      case 'KeyZ': playerRotate(); break;
+      case 'KeyZ': e.preventDefault(); playerRotate(); break;
       case 'Space': e.preventDefault(); hardDrop(); break;
       case 'KeyP': paused = !paused; break;
       case 'KeyR': initGame(true); break;
