@@ -79,3 +79,8 @@ kbd{background:#111827;border:1px solid #374151;border-radius:4px;padding:2px 6p
 @media (max-width:900px){
   .tutorial-card{padding:18px}
 }
+
+.tutorial-close{position:absolute;top:8px;right:10px;background:transparent;border:1px solid #263043;
+  color:#9ca3af;border-radius:8px;width:28px;height:28px;line-height:26px;text-align:center;cursor:pointer}
+.tutorial-close:hover{color:#e5e7eb;border-color:#3a475e}
+.tutorial-card{position:relative}

@@ -1,5 +1,5 @@
 // sw.js — TetriXapp offline cache
-const CACHE = 'tetrisxapp-v1';
+const CACHE = 'tetrixapp-v2';
 const ASSETS = [
   './',
   './index.html',
